@@ -26,11 +26,21 @@ class Plan:
                                    '16:00 – 17:30',
                                    '17:30 – 18:15',
                                    '18:15 – 18:45']}
-        self.subjects = {'normalna': ['matematyka', 'j. polski', 'systemy serwerowe', 'sieci komputerowe',
-                                      'projektowanie stron internetowych'],
+        self.subjects = {'normalna': ['matematyka', 'j. polski', 'j. angielski', 'j. niemiecki',
+                                      'systemy serwerowe', 'sieci komputerowe', 'projektowanie stron internetowych',
+                                      'fizyka', 'geografia', 'chemia', 'biologia',
+                                      'historia', 'podstawy przedsiębiorczości', 'informatyka',
+                                      'religia', 'WF', 'godzina wychowawcza'],
                          'muzyczna': ['saksofon', 'fortepian', 'kształcenie słuchu', 'zasady muzyki',
                                       'literatura muzyczna']}
-        self.classrooms = {'normalna': [], 'muzyczna': []}
+        self.classrooms = {'normalna': ['1', '2', '3', '4', '5', '6',
+                                        '11', '12', '13', '14', '15', '16',
+                                        '24', '25', '26', '27', '28', '29', '30',
+                                        '103',
+                                        '209',
+                                        'sala gim', 'sala konf', 'MEDIA', 'TCA'],
+                           'muzyczna': ['110', '206', '207', '210', '205', '305',
+                                        'kameralna']}
 
     def write_plan(self):
         for day in self.plan:
@@ -63,4 +73,3 @@ if __name__ == '__main__':
     flag = True
     while flag:
         exec(input(': '))
-
