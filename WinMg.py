@@ -37,6 +37,17 @@ class Window(main.Plan):
         self.menulist_clear_all()
         return
 
+    def print_day(self, plan_labels, day, col):
+        # define day label
+        plan_labels[day] = Label(self.main_frame, text=day)
+        plan_labels[day].grid(column=col)
+
+        for hour in self.plan[day]:
+            # define lesson hour label
+            hour_desc = f'{hour} | {self.plan[day][hour][0]} ({self.plan[day][hour][1]})'
+            plan_labels[day, hour] = Label(self.main_frame, text=hour_desc)
+            plan_labels[day, hour].grid(column=col)
+
     def top_bar_create(self, toggle_btn=None, edit_btn=None):
         if toggle_btn is None:
             # toggle view button
@@ -65,15 +76,7 @@ class Window(main.Plan):
         plan_labels = {}
 
         for day in self.plan:
-            # define day label
-            plan_labels[day] = Label(self.main_frame, text=day)
-            plan_labels[day].grid(column=0)
-
-            for hour in self.plan[day]:
-                # define lesson hour label
-                hour_desc = f'{hour} | {self.plan[day][hour][0]} ({self.plan[day][hour][1]})'
-                plan_labels[day, hour] = Label(self.main_frame, text=hour_desc)
-                plan_labels[day, hour].grid(column=0)
+            self.print_day(plan_labels, day, 0)
         return
 
     def edit_plan_view(self):
@@ -130,7 +133,10 @@ class Window(main.Plan):
 
     def add_hour(self):
 
-        # self.write_in_plan(self.selected_day, self.selected_hour, self.selected_subject, self.selected_classroom)
+        self.write_in_plan(self.selected_day.get(),
+                           self.selected_hour.get(),
+                           self.selected_subject.get(),
+                           self.selected_classroom.get())
 
         # clear all variables
         self.menulist_clear_all()
@@ -149,10 +155,10 @@ class Window(main.Plan):
             self.selected_subject.set(str(subject_classroom[0]))
             self.selected_classroom.set(str(subject_classroom[1]))
 
-        day_menu = self.add_menulist('day', self.days, self.selected_day)
-        hour_menu = self.add_menulist('hour', self.hours['normalna'], self.selected_hour)
-        subject_menu = self.add_menulist('subject', self.subjects['normalna'], self.selected_subject)
-        classroom_menu = self.add_menulist('classroom', self.classrooms['normalna'], self.selected_classroom)
+        self.add_menulist('day', self.days, self.selected_day)
+        self.add_menulist('hour', self.hours['normalna'], self.selected_hour)
+        self.add_menulist('subject', self.subjects['normalna'], self.selected_subject)
+        self.add_menulist('classroom', self.classrooms['normalna'], self.selected_classroom)
 
         add_hour_btn = Button(self.main_frame, text='add hour', command=self.add_hour)
         add_hour_btn.grid(column=0)
@@ -163,3 +169,5 @@ class Window(main.Plan):
 if __name__ == '__main__':
     win = Window()
     win.root.mainloop()
+
+    win.save_plan()
