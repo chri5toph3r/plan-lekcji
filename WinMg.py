@@ -24,6 +24,8 @@ class Window(main.Plan):
 
         self.read_plan()
 
+        self.plan_labels = {}
+
         self.selected_day = StringVar()
         self.selected_hour = StringVar()
         self.selected_subject = StringVar()
@@ -31,22 +33,52 @@ class Window(main.Plan):
 
         self.default_view()
 
+    def menulist_clear_all(self):
+        self.selected_day.set('')
+        self.selected_hour.set('')
+        self.selected_subject.set('')
+        self.selected_classroom.set('')
+        return
+
     def clear_frame(self):
         for widgets in self.main_frame.winfo_children():
             widgets.destroy()
         self.menulist_clear_all()
         return
 
-    def print_day(self, plan_labels, day, col):
-        # define day label
-        plan_labels[day] = Label(self.main_frame, text=day)
-        plan_labels[day].grid(column=col)
+    def print_day(self, day=None, col=None, top_flag=True):
 
+        if day is None:
+            print(f'selected day: {self.selected_day.get()}')
+            day = self.selected_day.get()
+        if col is None:
+            col = 3
+        print(f'day: {day}')
+        print(col)
+
+        # define day label
+        self.plan_labels[day] = Label(self.main_frame, text=day)
+        if not top_flag:
+            try:
+                self.plan_labels[day].grid(column=col)
+            except Exception:
+                print('ValEr while creating day label without row')
+        else:
+            try:
+                self.plan_labels[day].grid(column=col, row=1)
+            except Exception:
+                print('ValEr while creating day label with row')
+
+        next_row = 2
         for hour in self.plan[day]:
             # define lesson hour label
             hour_desc = f'{hour} | {self.plan[day][hour][0]} ({self.plan[day][hour][1]})'
-            plan_labels[day, hour] = Label(self.main_frame, text=hour_desc)
-            plan_labels[day, hour].grid(column=col)
+            self.plan_labels[day, hour] = Label(self.main_frame, text=hour_desc)
+            if not top_flag:
+                self.plan_labels[day, hour].grid(column=col)
+            else:
+                self.plan_labels[day, hour].grid(column=col, row=next_row)
+                next_row += 1
 
     def top_bar_create(self, toggle_btn=None, edit_btn=None):
         if toggle_btn is None:
@@ -73,10 +105,8 @@ class Window(main.Plan):
         self.clear_frame()
         self.top_bar_create(edit_btn='edit')
 
-        plan_labels = {}
-
         for day in self.plan:
-            self.print_day(plan_labels, day, 0)
+            self.print_day(day, 0, False)
         return
 
     def edit_plan_view(self):
@@ -84,21 +114,20 @@ class Window(main.Plan):
         self.clear_frame()
         self.top_bar_create(toggle_btn='add_hour')
 
-        plan_labels = {}
         add_btns = {}
 
         for day in self.plan:
             # define day label
-            plan_labels[day] = Label(self.main_frame, text=day)
-            plan_labels[day].grid(column=0)
+            self.plan_labels[day] = Label(self.main_frame, text=day)
+            self.plan_labels[day].grid(column=0)
 
             last_hour = 0
             school = 'normalna'
             for hour in self.plan[day]:
                 # define lesson hour label
                 hour_desc = f'{hour} | {self.plan[day][hour][0]} ({self.plan[day][hour][1]})'
-                plan_labels[day, hour] = Label(self.main_frame, text=hour_desc)
-                plan_labels[day, hour].grid(column=0)
+                self.plan_labels[day, hour] = Label(self.main_frame, text=hour_desc)
+                self.plan_labels[day, hour].grid(column=0)
                 last_hour += 1
 
             if last_hour > 10:
@@ -124,13 +153,6 @@ class Window(main.Plan):
 
         return selection
 
-    def menulist_clear_all(self):
-        self.selected_day.set('')
-        self.selected_hour.set('')
-        self.selected_subject.set('')
-        self.selected_classroom.set('')
-        return
-
     def add_hour(self):
 
         self.write_in_plan(self.selected_day.get(),
@@ -140,7 +162,6 @@ class Window(main.Plan):
 
         # clear all variables
         self.menulist_clear_all()
-
         return
 
     def add_hour_view(self, day=None, hour=None, subject_classroom=(None, None)):
@@ -162,6 +183,8 @@ class Window(main.Plan):
 
         add_hour_btn = Button(self.main_frame, text='add hour', command=self.add_hour)
         add_hour_btn.grid(column=0)
+
+        self.selected_day.trace("w", self.print_day)
 
         return
 
