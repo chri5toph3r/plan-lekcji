@@ -53,23 +53,22 @@ class Window(main.Plan):
             day = self.selected_day.get()
         if col is None:
             col = 3
-        print(f'day: {day}')
-        print(col)
 
+        print(f'day: {day}; col: ({col}); top flag: ({top_flag})')
+
+        if day not in self.days:
+            print(f'{day} not in days')
+            return False
+
+        next_row = 1
         # define day label
         self.plan_labels[day] = Label(self.main_frame, text=day)
         if not top_flag:
-            try:
-                self.plan_labels[day].grid(column=col)
-            except Exception:
-                print('ValEr while creating day label without row')
+            self.plan_labels[day].grid(column=col)
         else:
-            try:
-                self.plan_labels[day].grid(column=col, row=1)
-            except Exception:
-                print('ValEr while creating day label with row')
+            self.plan_labels[day].grid(column=col, row=1)
+            next_row += 1
 
-        next_row = 2
         for hour in self.plan[day]:
             # define lesson hour label
             hour_desc = f'{hour} | {self.plan[day][hour][0]} ({self.plan[day][hour][1]})'
@@ -79,6 +78,8 @@ class Window(main.Plan):
             else:
                 self.plan_labels[day, hour].grid(column=col, row=next_row)
                 next_row += 1
+
+        return True
 
     def top_bar_create(self, toggle_btn=None, edit_btn=None):
         if toggle_btn is None:
@@ -184,7 +185,8 @@ class Window(main.Plan):
         add_hour_btn = Button(self.main_frame, text='add hour', command=self.add_hour)
         add_hour_btn.grid(column=0)
 
-        self.selected_day.trace("w", self.print_day)
+        # TODO: create a new frame and clear it every trace (labels stack onto each other)
+        self.selected_day.trace("w", lambda *args: self.print_day(self.selected_day.get(), 3, True))
 
         return
 
