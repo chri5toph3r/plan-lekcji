@@ -22,6 +22,8 @@ class Window(main.Plan):
         self.main_frame = Frame()
         self.main_frame.grid()
 
+        self.preview_frame = None
+
         self.read_plan()
 
         self.plan_labels = {}
@@ -40,44 +42,35 @@ class Window(main.Plan):
         self.selected_classroom.set('')
         return
 
-    def clear_frame(self):
-        for widgets in self.main_frame.winfo_children():
+    def clear_frame(self, frame=None):
+        if frame is None:
+            frame = self.main_frame
+        for widgets in frame.winfo_children():
             widgets.destroy()
         self.menulist_clear_all()
         return
 
-    def print_day(self, day=None, col=None, top_flag=True):
+    def print_day(self, day=None, frame=None):
 
         if day is None:
-            print(f'selected day: {self.selected_day.get()}')
             day = self.selected_day.get()
-        if col is None:
-            col = 3
-
-        print(f'day: {day}; col: ({col}); top flag: ({top_flag})')
-
         if day not in self.days:
             print(f'{day} not in days')
             return False
+        if frame is None:
+            frame = self.main_frame
+        elif frame == self.preview_frame:
+            self.clear_frame(self.preview_frame)
 
-        next_row = 1
         # define day label
-        self.plan_labels[day] = Label(self.main_frame, text=day)
-        if not top_flag:
-            self.plan_labels[day].grid(column=col)
-        else:
-            self.plan_labels[day].grid(column=col, row=1)
-            next_row += 1
+        self.plan_labels[day] = Label(frame, text=day)
+        self.plan_labels[day].grid(column=0)
 
-        for hour in self.plan[day]:
+        for row, hour in enumerate(self.plan[day]):
             # define lesson hour label
             hour_desc = f'{hour} | {self.plan[day][hour][0]} ({self.plan[day][hour][1]})'
-            self.plan_labels[day, hour] = Label(self.main_frame, text=hour_desc)
-            if not top_flag:
-                self.plan_labels[day, hour].grid(column=col)
-            else:
-                self.plan_labels[day, hour].grid(column=col, row=next_row)
-                next_row += 1
+            self.plan_labels[day, hour] = Label(frame, text=hour_desc)
+            self.plan_labels[day, hour].grid(column=0)
 
         return True
 
@@ -107,7 +100,7 @@ class Window(main.Plan):
         self.top_bar_create(edit_btn='edit')
 
         for day in self.plan:
-            self.print_day(day, 0, False)
+            self.print_day(day)
         return
 
     def edit_plan_view(self):
@@ -185,8 +178,9 @@ class Window(main.Plan):
         add_hour_btn = Button(self.main_frame, text='add hour', command=self.add_hour)
         add_hour_btn.grid(column=0)
 
-        # TODO: create a new frame and clear it every trace (labels stack onto each other)
-        self.selected_day.trace("w", lambda *args: self.print_day(self.selected_day.get(), 3, True))
+        self.preview_frame = Frame(self.main_frame)
+        self.preview_frame.grid(column=3, row=1, rowspan=3)
+        self.selected_day.trace("w", lambda *args: self.print_day(frame=self.preview_frame))
 
         return
 
