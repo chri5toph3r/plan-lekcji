@@ -1,4 +1,4 @@
-from tkinter import *
+from tkinter import Tk, StringVar, Frame, Label, Button, Menu, Menubutton
 import main
 
 
@@ -29,6 +29,7 @@ class Window(main.Plan):
         self.plan_labels = {}
 
         self.selected_day = StringVar()
+        self.selected_day.trace("w", lambda *args: self.print_day(frame=self.preview_frame))
         self.selected_hour = StringVar()
         self.selected_subject = StringVar()
         self.selected_classroom = StringVar()
@@ -42,36 +43,36 @@ class Window(main.Plan):
         self.selected_classroom.set('')
         return
 
-    def clear_frame(self, frame=None):
+    def clear_frame(self, frame=None, menulist_clear=True):
         if frame is None:
             frame = self.main_frame
         for widgets in frame.winfo_children():
             widgets.destroy()
-        self.menulist_clear_all()
+        if menulist_clear:
+            self.menulist_clear_all()
         return
 
     def print_day(self, day=None, frame=None):
+        print(f'day: {day}; frame: {frame}')
 
         if day is None:
             day = self.selected_day.get()
         if day not in self.days:
-            print(f'{day} not in days')
             return False
         if frame is None:
             frame = self.main_frame
         elif frame == self.preview_frame:
-            self.clear_frame(self.preview_frame)
+            self.clear_frame(self.preview_frame, False)
 
         # define day label
         self.plan_labels[day] = Label(frame, text=day)
         self.plan_labels[day].grid(column=0)
 
-        for row, hour in enumerate(self.plan[day]):
+        for hour in self.plan[day]:
             # define lesson hour label
             hour_desc = f'{hour} | {self.plan[day][hour][0]} ({self.plan[day][hour][1]})'
             self.plan_labels[day, hour] = Label(frame, text=hour_desc)
             self.plan_labels[day, hour].grid(column=0)
-
         return True
 
     def top_bar_create(self, toggle_btn=None, edit_btn=None):
@@ -100,7 +101,7 @@ class Window(main.Plan):
         self.top_bar_create(edit_btn='edit')
 
         for day in self.plan:
-            self.print_day(day)
+            self.print_day(day, self.main_frame)
         return
 
     def edit_plan_view(self):
@@ -149,6 +150,11 @@ class Window(main.Plan):
 
     def add_hour(self):
 
+        print(self.selected_day.get(),
+              self.selected_hour.get(),
+              self.selected_subject.get(),
+              self.selected_classroom.get())
+
         self.write_in_plan(self.selected_day.get(),
                            self.selected_hour.get(),
                            self.selected_subject.get(),
@@ -180,7 +186,6 @@ class Window(main.Plan):
 
         self.preview_frame = Frame(self.main_frame)
         self.preview_frame.grid(column=3, row=1, rowspan=3)
-        self.selected_day.trace("w", lambda *args: self.print_day(frame=self.preview_frame))
 
         return
 
