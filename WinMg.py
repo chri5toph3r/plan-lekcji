@@ -161,7 +161,7 @@ class Window(main.Plan):
                            self.selected_classroom.get())
 
         # clear all variables
-        self.menulist_clear_all()
+        self.clear_frame(self.preview_frame)
         return
 
     def add_hour_view(self, day=None, hour=None, subject_classroom=(None, None)):

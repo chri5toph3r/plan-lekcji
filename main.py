@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 
 class Plan:
@@ -6,7 +7,8 @@ class Plan:
     def __init__(self):
         self.plan = {'Mon': {}, 'Tue': {}, 'Wen': {}, 'Thu': {}, 'Fri': {}}
         self.days = ['Mon', 'Tue', 'Wen', 'Thu', 'Fri']
-        self.hours = {'normalna': ['8:00 – 8:45',
+        self.hours = {'normalna': ['7:10 - 7:55',
+                                   '8:00 – 8:45',
                                    '8:50 – 9:35',
                                    '9:45 – 10:30',
                                    '10:40 – 11:25',
@@ -41,6 +43,33 @@ class Plan:
                                         'sala gim', 'sala konf', 'MEDIA', 'TCA'],
                            'muzyczna': ['110', '206', '207', '210', '205', '305',
                                         'kameralna']}
+
+        self.current_date = None
+        self.current_day = None
+        self.current_hour, self.current_minute = None, None
+
+    def current_lessons(self):
+        self.current_date = datetime.now()
+
+        try:
+            self.current_day = self.days[self.current_date.weekday()-1]
+        except IndexError:
+            self.current_day = self.days[0]
+
+        self.current_hour, self.current_minute = self.current_date.hour, self.current_date.minute
+
+        for hour in self.hours['normalna']:
+            start_factor = 2
+            end_factor = 2
+            if hour[1] == ':':
+                start_factor = 1
+                if hour[-5] == ' ':
+                    end_factor = 1
+
+            start_hour = hour[start_factor]
+            end_hour = hour[-3-end_factor:-3]
+            if self.current_hour in (start_hour, end_hour):
+                pass
 
     def write_plan(self):
         for day in self.plan:
